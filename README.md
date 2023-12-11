@@ -1,5 +1,5 @@
-# Boeing SDR Classifier package
-This is a package to classify SDR records for Depressurization event.  
+# SDR Classifier package
+This is the source code for SDR Classifier package that classifies SDR records for potential safety hazards.  The work is a collaboration between FAA and Boeing 
 
 ## Build the whl file
 Run the command in the root folder to create the whl file in the _dist_ folder
@@ -12,21 +12,21 @@ It is highly recommended to use venv, virtualenv or conda python environments. R
 https://docs.python.org/3/tutorial/venv.html#creating-virtual-environments
 
 ## Install boeing_sdr_classifier and its dependencies
-pip install boeing_sdr_classifier-0.0.1-py3-none-any.whl
+pip install sdr_classifier-0.0.1-py3-none-any.whl
 
 ## Example
 Follow the code snippet below to test and call the prediction method from the Depressurization model
 
 ```
-from boeing_sdr_classifier import boeing_sdr_api
+from sdr_classifier import sdr_api
 import pandas as pd
 
-my_model = boeing_sdr_api.BoeingSDRAPI()
+my_model = sdr_api.SDRAPI()
 
 #test the prediction method
 my_model.test_sdr_depressurization_predictions()
 
-df = pd.read_csv('../sdr_gold_labels.csv')
+df = pd.read_csv('../src/sdr_classifier/data/SDR_Example.csv')
 records = df["NormalizedEventText"]
 #pass in a record list for prediction
 pred, probs = my_model.get_depressurization_predictions(records)
