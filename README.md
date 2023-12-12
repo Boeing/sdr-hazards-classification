@@ -1,5 +1,5 @@
 ## Service Difficult Report (SDR) classifier package
-:rocket: This is the source code for the SDR Classifier package that classifies potential aviation safety hazards.  The work is a collaboration between FAA and Boeing data scientist teams
+:rocket: This is the source code for the SDR Classifier package that classifies potential aviation safety hazards from textual data.  The work is a collaboration between FAA and Boeing data scientist teams
 
 **Version 0.0.1 out now!**
 [Check out the release notes here.](https://github.com/Boeing/sdr-hazards-classification/releases)
@@ -18,9 +18,10 @@
 It is highly recommended to use venv, virtualenv or conda python environments. Read more about creating virtual environments via venv
 https://docs.python.org/3/tutorial/venv.html#creating-virtual-environments
 
-## Build the whl file and pip install whl file 
+## Build and pip install the whl file locally
 Run the command in the root folder to create the whl file in the _dist_ folder
 ```
+git clone https://github.com/Boeing/sdr-hazards-classification
 python setup.py bdist_wheel
 pip install sdr_classifier-0.0.2-py3-none-any.whl
 ```
