@@ -6,11 +6,11 @@ with open("README.md", "r") as fh:
 
 setup(
     name='sdr_classifier',
-    version='0.0.2',
+    version='0.0.1',
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     include_package_data=True,
-    install_requires=["pandas>=1.1.5", "scikit-learn>=0.24.1"],
+    install_requires=["pandas>=1.1.5", "scikit-learn>=0.24.1", "xgboost"],
     #packages=setuptools.find_packages(),
     url='',
     description="Package to create SDR Classifier",
@@ -24,5 +24,5 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.8',
 )
