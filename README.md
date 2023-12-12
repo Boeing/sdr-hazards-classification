@@ -4,18 +4,21 @@ This is the source code for SDR Classifier package that classifies SDR records f
 ## Demo
 ![](https://github.com/Boeing/sdr-hazards-classification/blob/hai-branch/img/sdr_classifier.gif)
 
-## Build the whl file
-Run the command in the root folder to create the whl file in the _dist_ folder
-
-`python setup.py bdist_wheel`
-
 ## Virtual Environment
 It is highly recommended to use venv, virtualenv or conda python environments. Read more about creating virtual environments via venv
-
 https://docs.python.org/3/tutorial/venv.html#creating-virtual-environments
 
-## Install sdr_classifier and its dependencies
-pip install sdr_classifier-0.0.1-py3-none-any.whl
+## Build the whl file and pip install whl file 
+Run the command in the root folder to create the whl file in the _dist_ folder
+```
+python setup.py bdist_wheel
+pip install sdr_classifier-0.0.2-py3-none-any.whl
+```
+
+## Install sdr_classifier with pip
+```
+pip install sdr_classifier
+```
 
 ## Example
 Follow the code snippet below to test and call the prediction method from the Depressurization model
