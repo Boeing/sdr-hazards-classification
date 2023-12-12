@@ -10,8 +10,8 @@ import os
 
 import numpy as np
 
-from prep_utils import PreprocessingUtils
-from vectorizers import Vectorizers
+from .prep_utils import PreprocessingUtils
+from .vectorizers import Vectorizers
 import pandas as pd
 
 DEPRESSURIZATION = 'depressurization'
