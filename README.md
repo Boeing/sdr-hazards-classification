@@ -11,7 +11,7 @@ It is highly recommended to use venv, virtualenv or conda python environments. R
 
 https://docs.python.org/3/tutorial/venv.html#creating-virtual-environments
 
-## Install boeing_sdr_classifier and its dependencies
+## Install sdr_classifier and its dependencies
 pip install sdr_classifier-0.0.1-py3-none-any.whl
 
 ## Example
@@ -26,10 +26,10 @@ my_model = sdr_api.SDRAPI()
 #test the prediction method
 my_model.test_sdr_depressurization_predictions()
 
-df = pd.read_csv('../src/sdr_classifier/data/SDR_Example.csv')
-records = df["NormalizedEventText"]
+df = pd.read_csv('./src/sdr_classifier/data/SDR_Example.csv')
+records = df["Text"]
 #pass in a record list for prediction
-pred, probs = my_model.get_depressurization_predictions(records)
+pred, probs = my_model.get_predictions(records)
 
 df['Prediction'] = pred
 df['Prob'] = probs
