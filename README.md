@@ -1,5 +1,5 @@
 ## Service Difficult Report (SDR) classifier package
-:rocket: This is the source code for SDR Classifier package that classifies SDR records for potential safety hazards.  The work is a collaboration between FAA and Boeing 
+:rocket: This is the source code for the SDR Classifier package that classifies potential aviation safety hazards.  The work is a collaboration between FAA and Boeing data scientist teams
 
 **Version 0.0.1 out now!**
 [Check out the release notes here.](https://github.com/Boeing/sdr-hazards-classification/releases)
