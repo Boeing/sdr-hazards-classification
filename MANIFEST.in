@@ -1,0 +1,3 @@
+include src/sdr_classifier/data/*.csv
+include src/sdr_classifier/model/*.config
+include src/sdr_classifier/model/*.model
