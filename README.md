@@ -1,7 +1,7 @@
 # SDR Classifier package
 This is the source code for SDR Classifier package that classifies SDR records for potential safety hazards.  The work is a collaboration between FAA and Boeing 
 
-# Demo
+## Demo
 ![](https://github.com/Boeing/sdr-hazards-classification/blob/hai-branch/img/sdr_classifier.gif)
 
 ## Build the whl file
