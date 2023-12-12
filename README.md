@@ -24,7 +24,7 @@ Follow the code snippet below to test and call the prediction method from the De
 from sdr_classifier import sdr_api
 import pandas as pd
 
-my_model = sdr_api.SDRAPI()
+my_model = sdr_api.SdrInferenceAPI()
 
 #test the prediction method
 my_model.test_sdr_depressurization_predictions()
