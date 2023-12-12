@@ -24,12 +24,15 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
+    - name: build wheel and install the sdr-classifier package
+      run: |
+        python -m pip install --user --upgrade build
+        python -m build
+        #pip install .
+        find ./dist/*.whl | xargs pip install
     - name: Install dependencies
       run: |
-        python setup.py bdist_wheel
-        cd ./dist/
         python -m pip install --upgrade pip
-        python -m pip install sdr_classifier-0.0.2-py3-none-any.whl
         python -m pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
