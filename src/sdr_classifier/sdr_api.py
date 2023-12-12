@@ -10,15 +10,15 @@ import os
 
 import numpy as np
 
-from prep_utils import PreprocessingUtils
-from vectorizers import Vectorizers
+from .prep_utils import PreprocessingUtils
+from .vectorizers import Vectorizers
 import pandas as pd
 
 DEPRESSURIZATION = 'depressurization'
 DEGRADED_CONTROLLABILITY= 'degraded-controllability'
 CORROSION_LIMIT = 'corrosion-limit'
 
-class SDRAPI:
+class SdrInferenceAPI:
     def __init__(self, event_type="depressurization"):
 
         if event_type in DEGRADED_CONTROLLABILITY:
@@ -27,9 +27,10 @@ class SDRAPI:
         elif event_type in CORROSION_LIMIT:
             model_type = f"sdr-{CORROSION_LIMIT}.model"
             model_config = f"sdr-{CORROSION_LIMIT}.config"
-        else:
+        elif event_type in DEPRESSURIZATION:
             model_type = f"sdr-{DEPRESSURIZATION}.model"
             model_config = f"sdr-{DEPRESSURIZATION}.config"
+        else: assert "Event type not supported!"
 
         this_dir, this_filename = os.path.split(__file__)  # Get path of data.pkl
         self.dir_path = this_dir
@@ -37,7 +38,7 @@ class SDRAPI:
         model_config_path = os.path.join(self.dir_path, 'model', model_config)
         self.model_path = model_path
         self.mode_config_path = model_config_path
-        print("Loading the model")
+        print(f"Loading the {event_type} model")
 
         # load the model from disk
         self.model = pickle.load(open(self.model_path, 'rb'))
@@ -98,9 +99,9 @@ class SDRAPI:
         hole fastener out of limits as per ref b737-700 srm 52-40-01-1a-4 ; [ 03 ] verified steps 1 and 2ok to install serviceable toilet service panel door . 
         accomplished bonding resistance test . found ok as per ref b737-700 amm 52-49-07-400-801 ."""]
 
-        pred, probs = self.get_predictions(sample_record)
-        print(sample_record)
-        print("Prediction:", pred, probs)
+        # pred, probs = self.get_predictions(sample_record)
+        # # print(sample_record)
+        # # print("Prediction:", pred, probs)
 
         for s in sample_record:
             pred, probs =  self.get_predictions([s])
@@ -123,10 +124,8 @@ class SDRAPI:
 if __name__ == "__main__":
 
    #Load the trained model
-   # model_path = r"model/boeing-sdr-depressurization.model"
-   # config_path = r"model/boeing-sdr-depressurization.config"
    # model_api = SDRAPI(event_type='corrosion-limit')
-   model_api = SDRAPI(event_type='degraded-controllability')
+   model_api = SdrInferenceAPI(event_type='degraded-controllability')
    # model_api = SDRAPI()
    model_api.test_sdr_degraded_controllability()
    model_api.test_sdr_corrosion_limit()

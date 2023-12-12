@@ -1,3 +1,4 @@
 scikit-learn
 pandas
+xgboost
 # pickle, string and json. They comes with Python I believe.
