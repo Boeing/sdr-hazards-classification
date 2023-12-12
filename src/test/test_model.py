@@ -2,8 +2,7 @@
 import pytest
 import numpy as np
 from numpy.testing import assert_array_equal
-# from sdr_classifier.sdr_api import SdrInferenceAPI
-from src.sdr_classifier.sdr_api import SdrInferenceAPI
+from sdr_classifier.sdr_api import SdrInferenceAPI
 # my_model = sdr_api.SdrInferenceAPI()
 # my_model.test_sdr_depressurization_predictions()
 
