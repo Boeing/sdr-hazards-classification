@@ -23,10 +23,10 @@ Run the command in the root folder to create the whl file in the _dist_ folder
 ```
 git clone https://github.com/Boeing/sdr-hazards-classification
 python setup.py bdist_wheel
-pip install sdr_classifier-0.0.2-py3-none-any.whl
+pip install ./distr/sdr_classifier-0.0.1-py3-none-any.whl
 ```
 
-## Install sdr_classifier with pip
+## Install sdr_classifier from Pypi with pip
 ```
 pip install sdr_classifier
 ```
