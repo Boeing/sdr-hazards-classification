@@ -1,4 +1,4 @@
-# SDR Classifier package
+# Service Difficult Report (SDR) classifier package
 This is the source code for SDR Classifier package that classifies SDR records for potential safety hazards.  The work is a collaboration between FAA and Boeing 
 
 ## Demo
