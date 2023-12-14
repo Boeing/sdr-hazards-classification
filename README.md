@@ -35,7 +35,7 @@ pip install sdr_classifier
 :airplane: Follow the code snippet below to test and call the prediction method from the Depressurization model
 
 ```
-from sdr_classifier import sdr_api
+from sdr_hazards_classification import sdr_api
 import pandas as pd
 
 my_model = sdr_api.SdrInferenceAPI()
