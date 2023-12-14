@@ -13,7 +13,7 @@ setup(
     install_requires=["pandas>=1.1.5", "scikit-learn>=0.24.1", "xgboost"],
     #packages=setuptools.find_packages(),
     url='',
-    description="Package to create SDR Classifier",
+    description="Package to classify aviation safety hazards from SDR data",
     long_description=long_description,
     long_description_content_type="text/markdown",
     #license='Apache License 2.0',

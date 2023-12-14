@@ -10,13 +10,10 @@ import os
 
 import numpy as np
 
-from .prep_utils import PreprocessingUtils
+from .prep_utils import PreprocessingUtils, DEPRESSURIZATION, DEGRADED_CONTROLLABILITY, CORROSION_LIMIT
 from .vectorizers import Vectorizers
 import pandas as pd
 
-DEPRESSURIZATION = 'depressurization'
-DEGRADED_CONTROLLABILITY= 'degraded-controllability'
-CORROSION_LIMIT = 'corrosion-limit'
 
 class SdrInferenceAPI:
     def __init__(self, event_type="depressurization"):
@@ -124,9 +121,7 @@ class SdrInferenceAPI:
 if __name__ == "__main__":
 
    #Load the trained model
-   # model_api = SDRAPI(event_type='corrosion-limit')
    model_api = SdrInferenceAPI(event_type='degraded-controllability')
-   # model_api = SDRAPI()
    model_api.test_sdr_degraded_controllability()
    model_api.test_sdr_corrosion_limit()
    model_api.test_sdr_depressurization_predictions()

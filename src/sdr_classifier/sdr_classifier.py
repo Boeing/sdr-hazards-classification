@@ -3,25 +3,36 @@
     Developed by Nobal Niraula, Boeing Research & Technology
     Developed by Hai Nguyen, Enterprise Safety
 '''
+from dataclasses import dataclass, field
 
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-
+import argparse
+import logging
 from os import path
 import pickle
-
+import traceback as tb
 # Default column name  in DataFrame
 from sklearn.svm import SVC
 
-from prep_utils import PreprocessingUtils
+from prep_utils import PreprocessingUtils, DEPRESSURIZATION, DEGRADED_CONTROLLABILITY, CORROSION_LIMIT
 from vectorizers import Vectorizers
-
 
 prep_util = PreprocessingUtils()
 
+@dataclass
+class TrainingArguments:
+    """
+    TrainingArguments is the subset of the arguments we use in our example scripts
+    """
+    event_type: str = field(
+        default=DEPRESSURIZATION, metadata={"help": "The hazard type that will be classified"},
+    )
+    target_name: dict = field(default=False, metadata={"help": "The categories of the hazard event"})
+    file_path: str = field(default=False, metadata={"help": "File path of training data"})
 
 class TextClassifier:
 
@@ -55,31 +66,25 @@ class TextClassifier:
         le = LabelEncoder()
         le.fit(all_df[label_field].unique())
         label_dict = dict(zip(le.transform(le.classes_), le.classes_))
-        # print("Classes Distribution:", all_df.groupby(label_field).size())
-        # print(f"number of positive examples:{len(positive_df)}")
-        # print(f"number of negative examples:{len(negative_df)}")
         print(f"Training {model_type} classifier ...")
         all_data = TextClassifier.df2text_sdr(all_df, text_field)
         # all_df = pd.concat([positive_df, negative_df])
 
         if evaluate_model:
             print(f"Evaluation is enabled with holdout test size {holdout_testsize}.")
+            logging.info(msg=f'Evaluation is enabled with holdout test size {holdout_testsize}')
             train_df, test_df, y_train, y_test = train_test_split(all_df, le.transform(all_df[label_field]), test_size=0.1, stratify=all_df[label_field], random_state=42)
             print("Train size:")
             print(len(train_df))
             print("Test size:")
             print(len(test_df))
             test_data = [x for x in TextClassifier.df2text_sdr(test_df, text_field)]
-            # test_labels = [1 if int(x) == 1 else 0 for x in test_df[label_field]]
-            # test_labels = [label_dict[x] for x in test_df[label_field]]
             test_labels = y_test
             final_df = train_df
         else:
             final_df = all_df
 
         train_data = TextClassifier.df2text_sdr(final_df, text_field)
-        # train_labels = [1 if int(x) == 1 else 0 for x in final_df["label"]]
-        # train_labels = [label_dict[x] for x in final_df[label_field]]
         train_labels =  le.transform(final_df[label_field])
 
         model_config = {}
@@ -110,7 +115,8 @@ class TextClassifier:
             from xgboost import XGBClassifier
             model = XGBClassifier(n_estimators=500, max_depth=5, reg_alpha=.1)
         else:
-            raise ValueError("Model not supported")
+            model_name = model_config["model_name"]
+            raise ValueError(f"Model '{model_name}' not supported")
 
         # fit model
         model.fit(X_train, train_labels)
@@ -120,6 +126,7 @@ class TextClassifier:
             target_name = le.inverse_transform(model.classes_)
             predictions = TextClassifier.predict_sdr_labels(model, model_config, test_data)
             print(classification_report(test_labels, predictions[0], target_names=target_name))
+            logging.info(msg=f'Performance:\n {classification_report(test_labels, predictions[0], target_names=target_name)}')
             return model, model_config, test_data, test_labels
 
         return model, model_config
@@ -127,11 +134,12 @@ class TextClassifier:
     @staticmethod
     def export_model(model, model_config, model_name, out_folder):
         print("Exporting model to given folder: ", out_folder)
+        logging.info(msg=f'Exporting {model_name} to given folder {out_folder}')
         model_config_path = path.join(out_folder, model_name + ".config")
         model_path= path.join(out_folder, model_name + ".model")
         pickle.dump(model_config, open(model_config_path, 'wb'))
         pickle.dump(model, open(model_path, 'wb'))
-
+        logging.info(msg=f'Complet with {model_name} !\n')
 
     @staticmethod
     def get_classifier(criteria, df_all, text_field, label_field, label_dict, model_type="lg", oversampling=1, preprocessor=None, holdout_testsize=0.1, stop_words=[]):
@@ -161,129 +169,98 @@ class TextClassifier:
 
 
     @staticmethod
-    def release_model(event_type, training_path, target_name, model_type= "lg"):
-        # event_type == "depressurization":
-        text_field = "Text"
-        label_field = "Label"
-        criteria= event_type
-        model_type =model_type
+    def release_model( **kwargs):
+        try:
+            # event_type == "depressurization":
+            text_field = "Text"
+            label_field = "Label"
+            criteria= kwargs['event_type']
+            model_type =kwargs['model_type']
 
-        # label_dict = {"Yes": 1, "No": 0}
-        label_dict = target_name
+            # label_dict = {"Yes": 1, "No": 0}
+            label_dict = kwargs['target_name']
 
-        # Training example prior to SME feedback
-        # work_dir = r".\experiments\depressurization\data_sets"
-        # df_train_prep = pd.read_csv(path.join(work_dir, "train-0.7_prep.csv"))
-        # df_test_prep = pd.read_csv(path.join(work_dir, "test-0.3_prep.csv"))
-        # df_all = pd.concat([df_train_prep, df_test_prep])
-        # text_field = "Text_punct_prep"
+            # Training example prior to SME feedback
+            # work_dir = r".\experiments\depressurization\data_sets"
+            # df_train_prep = pd.read_csv(path.join(work_dir, "train-0.7_prep.csv"))
+            # df_test_prep = pd.read_csv(path.join(work_dir, "test-0.3_prep.csv"))
+            # df_all = pd.concat([df_train_prep, df_test_prep])
+            # text_field = "Text_punct_prep"
 
-        # Traininig examples after SME feedback
-        # df = pd.read_csv(r".\depressurization\SDR_Depressurization_Gold_label_with_SME_Feedback.csv")
-        df = pd.read_csv(training_path, encoding='latin')
-        df_all = pd.DataFrame({text_field:df["Text"], label_field:df["Label"].str.strip()})
-        combine_maybe_to_yes = True
-        print("Classes Distribution:")
-        print(df_all[label_field].value_counts())
-        if combine_maybe_to_yes:
-            df_all[label_field].loc[df_all[label_field] == 'Maybe'] = "Yes"
-            # df_maybe = df_all[df_all[label_field] == "Maybe"]
-            # df_pos = pd.concat([df_pos, df_maybe])
-            # df_pos[label_field] = "Yes"
-        print("------------------")
-        print(f"Training a model using all {event_type} records.")
-        model, model_config, _, _ = TextClassifier.get_classifier(criteria, df_all, text_field, label_field,
-                                                                  label_dict, model_type=model_type)
-        # test_df_maybe = df_all[df_all[label_field] == "Maybe"]
-        # test_df_maybe[label_field] = "Yes"
-        # test_df = test_df_maybe
-        # test_data = [x for x in TextClassifier.df2text_sdr(test_df, text_field)]
-        # test_labels = [1 if x else 0 for x in test_df[label_field] == "Yes"]
-        # predictions, probabilities = TextClassifier.predict_sdr_labels(model, model_config, test_data)
-        # print(classification_report(test_labels, predictions, target_names=target_name))
+            # Traininig examples after SME feedback
+            # df = pd.read_csv(r".\depressurization\SDR_Depressurization_Gold_label_with_SME_Feedback.csv")
+            df = pd.read_csv(kwargs['training_path'], encoding='latin')
+            df_all = pd.DataFrame({text_field:df["Text"], label_field:df["Label"].str.strip()})
+            combine_maybe_to_yes = True
+            print("Classes Distribution:")
+            print(df_all[label_field].value_counts())
+            logging.info(msg=f'Classes Distribution\n: {df_all[label_field].value_counts()}')
+            if combine_maybe_to_yes:
+                df_all[label_field].loc[df_all[label_field] == 'Maybe'] = "Yes"
+                # df_maybe = df_all[df_all[label_field] == "Maybe"]
+                # df_pos = pd.concat([df_pos, df_maybe])
+                # df_pos[label_field] = "Yes"
+            print("------------------")
+            print(f"Training a model using all {criteria} records.")
+            logging.info(msg=f"Training a model using all {criteria} records.")
 
-        # test_df = pd.concat([df_pos, df_neg])
-        # test_data = [x for x in TextClassifier.df2text_sdr(test_df, text_field)]
-        # test_labels = [1 if x else 0 for x in test_df[label_field] == "Yes"]
-        # predictions, probabilities = TextClassifier.predict_sdr_labels(model, model_config, test_data)
-        # print(classification_report(test_labels, predictions, target_names=target_name))
+            model, model_config, _, _ = TextClassifier.get_classifier(criteria, df_all, text_field, label_field,
+                                                                      label_dict, model_type=model_type)
+
+        except Exception as err:
+            error_message = ''.join(tb.format_exception(None, err, err.__traceback__))
+            logging.error(msg=error_message)
+            print(error_message)
+            exit(f"Critical Error encounter")
 
         return model, model_config
 
 
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description='Train SDR classifier.')
+    parser.add_argument('--event_type', '-e', metavar='N', type=str, default= "depressurization",
+                        help='aviation hazard type (i.e.: "depressurization", "degraded-controllability", "corrosion-limit")')
+    parser.add_argument('--target_name', '-t', metavar='N', type=str, default= "depressurization; non-depressurization",
+                        help='target names for the hazard separated by semicolon (i.e.: "depressurization; non-depressurization")')
+    parser.add_argument('--model_type', '-m', metavar='N', type=str, default= "lg",
+                        help='modeling method (i.e.: "lg", "xgb", "svm")')
+    parser.add_argument('--file_path', '-f', metavar='N', type=str, default= "./data/Depressurization.csv",
+                        help='path to training dataset (i.e.: "./data/Depressurization.csv")')
+
+    args = parser.parse_args()
+    logging.info("Start logging for sdr-hazards-classification")
+
+    if args.event_type in DEPRESSURIZATION:
+        training_args = {'event_type': DEPRESSURIZATION,
+                    'model_type': 'lg',
+                   'target_name': ["depressurization", "non-depressurization"],
+                   'training_path': "./data/Depressurization.csv"}
+    elif args.event_type in DEGRADED_CONTROLLABILITY:
+        training_args = {'event_type': DEGRADED_CONTROLLABILITY,
+                    'model_type': 'xgb',
+                   'target_name': ["degraded-controllability", "non-degraded"],
+                   'training_path': "./data/Degraded_Controllability.csv"}
+    elif args.event_type in CORROSION_LIMIT:
+        training_args = {
+            'event_type': CORROSION_LIMIT,
+            'model_type': 'lg',
+            'target_name': ["beyond-limit", "no-corrosion", "no-limit", "within-limit", "within-beyond-limit"],
+            'training_path': "./data/Corrosion_Limit.csv"}
+    else:
+        training_args = {'event_type': args.event_type,
+                    'model_type': args.model_type,
+                   'target_name': args.target_name.split(";"),
+                   'training_path': args.file_path}
+
     #### Model Config Path ########################################
-    event_type = "degraded_controllability"
-    target_name = ["degraded-controllability", "non-degraded"]
-    file_path = "./data/Degraded_Controllability.csv"
-    # event_type = "corrosion_limit"
-    # target_name = ["beyond-limit", "no-corrosion", "no-limit", "within-limit", "within-beyond-limit"]
-    model, model_config = TextClassifier.release_model(event_type,file_path, target_name, model_type='xgb')
+
+    logging.info(msg=f'Start training for {training_args}')
+
+    model, model_config = TextClassifier.release_model(**training_args)
+
     model_dump_path = r"./model/"
-    TextClassifier.export_model(model, model_config, "sdr-degraded-controllability", model_dump_path)
-    # TextClassifier.export_model(model, model_config, "sdr-degraded-controllability", model_dump_path)
+    model_name = "".join(['sdr-', training_args['event_type']])
+    TextClassifier.export_model(model, model_config, model_name, model_dump_path)
     #### Model Config Path ########################################
     exit("Finish Training")
-
-
-    input("wait here..")
-    work_dir = r".\experiments\depressurization\data_sets"
-    data = {
-        "boeing_annotated": "boeing_annotated.csv",
-        "faa_annotated": "faa_annotated.csv",
-        "train_seventy":"train-0.7.csv",
-        "test_thirty": "test-0.3.csv",
-        "train_seventy_prep":"train-0.7_prep.csv",
-        "test_thirty_prep": "test-0.3_prep.csv",
-        }
-    text_field = "Text"
-    label_field = "Label"
-    criteria = "depressurization"
-
-    print("Printing Stats: ")
-    for name,file in data.items():
-       data_path = path.join(work_dir, file)
-       df = pd.read_csv(data_path)
-       print("Data: ", name, "-", len(df))
-       print(df.Label.value_counts())
-
-    df_faa = pd.read_csv(path.join(work_dir, data["faa_annotated"]))
-    df_boeing = pd.read_csv(path.join(work_dir, data["boeing_annotated"]))
-    df_train = pd.read_csv(path.join(work_dir, data["train_seventy"]))
-    df_test = pd.read_csv(path.join(work_dir, data["test_thirty"]))
-
-    df_train_prep = pd.read_csv(path.join(work_dir, data["train_seventy_prep"]))
-    df_test_prep = pd.read_csv(path.join(work_dir, data["test_thirty_prep"]))
-
-
-    # Case 1: Train on FAA labeled and test on Boeing labeled
-    print("------------------")
-    print("Train on FAA labeled and test on Boeing labeled")
-    model, model_config = TextClassifier.get_classifier(criteria, df_faa, text_field, label_field, holdout_testsize=0)
-    TextClassifier.evaluate_model(model, model_config, df_boeing, text_field, label_field)
-
-    # Case 2: Train on Boeing labeled and test on FAA labeled
-    print("------------------")
-    print("Train on Boeing labeled and test on FAA labeled")
-    model, model_config = TextClassifier.get_classifier(criteria, df_boeing, text_field, label_field, holdout_testsize=0)
-    TextClassifier.evaluate_model(model, model_config, df_faa, text_field, label_field)
-
-    # Case 3: Train on Train and test on Test
-    print("------------------")
-    print("Train on 70% and testing on 30%")
-    model, model_config = TextClassifier.get_classifier(criteria, df_train, text_field, label_field, holdout_testsize=0)
-    TextClassifier.evaluate_model(model, model_config, df_test, text_field, label_field)
-
-    # Case 4: Train on PREP Train and test on Test
-    print("------------------")
-    print("Train on 70% and testing on 30% using preprocessed text by MAD")
-    text_field = "Text_mad_prep"
-    model, model_config = TextClassifier.get_classifier(criteria, df_train_prep, text_field, label_field, holdout_testsize=0)
-    TextClassifier.evaluate_model(model, model_config, df_test_prep, text_field, label_field)
-
-    # Case 4: Train on PREP Train and test on Test
-    print("------------------")
-    print("Train on 70% and testing on 30% using preprocessed text by Removing punctuations")
-    text_field = "Text_punct_prep"
-    model, model_config = TextClassifier.get_classifier(criteria, df_train_prep, text_field, label_field, holdout_testsize=0)
-    TextClassifier.evaluate_model(model, model_config, df_test_prep, text_field, label_field)

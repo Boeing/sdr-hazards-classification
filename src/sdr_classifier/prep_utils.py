@@ -6,7 +6,27 @@
 from sklearn.feature_extraction._stop_words import ENGLISH_STOP_WORDS
 import re
 import string
+import os
+import datetime as dt
+import time
+import logging
+from logging.handlers import TimedRotatingFileHandler
 
+DEPRESSURIZATION = 'depressurization'
+DEGRADED_CONTROLLABILITY= 'degraded-controllability'
+CORROSION_LIMIT = 'corrosion-limit'
+
+LOG_FILE = os.getcwd() + "/logs"
+if not os.path.exists(LOG_FILE):
+    os.makedirs(LOG_FILE)
+LOG_FILE = LOG_FILE + "/" + dt.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d') + ".log"
+logFormatter = logging.Formatter("%(levelname)s %(asctime)s %(processName)s %(message)s")
+fileHandler = TimedRotatingFileHandler("{0}".format(LOG_FILE), when='D', interval=1)
+# fileHandler = logging.FileHandler("{0}".format(LOG_FILE))
+fileHandler.setFormatter(logFormatter)
+rootLogger = logging.getLogger()
+rootLogger.addHandler(fileHandler)
+rootLogger.setLevel(logging.INFO)
 
 class PreprocessingUtils:
 
