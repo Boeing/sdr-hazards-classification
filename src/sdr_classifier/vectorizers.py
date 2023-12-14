@@ -16,7 +16,7 @@ class Vectorizers:
     def fit_vectorizers(train_text, options=["words", "characters"], stopwords=set()):
         exp_vectorizers = {}
         if "words" in options:
-            word_count_vect = CountVectorizer(analyzer='word', ngram_range=(1, 2), stop_words=stopwords)
+            word_count_vect = CountVectorizer(analyzer='word', ngram_range=(1, 2), stop_words=list(stopwords))
             train_counts = word_count_vect.fit_transform(train_text)
             word_tfidf_transformer = TfidfTransformer()
             word_tfidf_transformer.fit_transform(train_counts)
