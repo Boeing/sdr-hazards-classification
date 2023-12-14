@@ -8,7 +8,7 @@
 [![Current Release Version](https://img.shields.io/github/release/Boeing/sdr-hazards-classification.svg?style=flat-square&logo=github)](https://github.com/Boeing/sdr-hazards-classification/releases)
 [![pypi Version](https://img.shields.io/pypi/v/sdr-hazards-classification.svg?style=flat-square&logo=pypi&logoColor=white)](https://pypi.org/project/sdr-classifier/)
 [![Python wheels](https://img.shields.io/badge/wheels-%E2%9C%93-4c1.svg?longCache=true&style=flat-square&logo=python&logoColor=white)](https://github.com/Boeing/sdr-hazards-classification/releases)
-[![PyPi downloads](https://static.pepy.tech/personalized-badge/sdr-classifier?period=total&units=international_system&left_color=grey&right_color=orange&left_text=pip%20downloads)](https://pypi.org/project/sdr-hazards-classification/)
+[![PyPi downloads](https://static.pepy.tech/personalized-badge/sdr-hazards-classification?period=total&units=international_system&left_color=grey&right_color=orange&left_text=pip%20downloads)](https://pypi.org/project/sdr-hazards-classification/)
 [![Boeing on Twitter](https://img.shields.io/twitter/follow/boeing.svg?style=social&label=Follow)](https://twitter.com/boeing)
 
 ## Demo
