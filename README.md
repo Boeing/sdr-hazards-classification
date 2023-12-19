@@ -63,4 +63,4 @@ print(df.head(2))
 print("Done")
 ```
 ## Contributing
-🛩️ Please follow the [contribution guideline](https://github.com/Boeing/sdr-hazards-classification/CONTRIBUTING.md)
+🛩️ Please follow the [contribution guideline](https://github.com/Boeing/sdr-hazards-classification/blob/main/CONTRIBUTING.md)
