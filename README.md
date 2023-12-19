@@ -35,21 +35,24 @@ pip install sdr_hazards_classification
 :airplane: Follow the code snippet below to test and call the prediction method from the Depressurization model
 
 ```
-from sdr_hazards_classification import sdr_api
+from sdr_hazards_classification.sdr_api import SdrInferenceAPI, CORROSION_LIMIT, DEGRADED_CONTROLLABILITY
 import pandas as pd
 
-my_model = sdr_api.SdrInferenceAPI()
+depressurization_model = sdr_api.SdrInferenceAPI()
 
 #test the prediction method
-my_model.test_sdr_depressurization_predictions()
+depressurization_model.test_sdr_depressurization_predictions()
 
 event_text = "Lost cabin pressurization at flight level 30000, cabin altitude warning horn sounded at 10000 feet. Unabel to control cabin pressure with outflow valve closed"
-pred, probs = my_model.get_predictions([event_text])
+pred, probs = depressurization_model.get_predictions([event_text])
+
+degraded_controllability_model = SdrInferenceAPI(DEGRADED_CONTROLLABILITY)
+degraded_controllability_model.test_sdr_degraded_controllability()
 
 df = pd.read_csv('./src/sdr_classifier/data/SDR_Example.csv')
 records = df["Text"]
 #pass in a record list for prediction
-pred, probs = my_model.get_predictions(records)
+pred, probs = depressurization_model.get_predictions(records)
 
 df['Prediction'] = pred
 df['Prob'] = probs
