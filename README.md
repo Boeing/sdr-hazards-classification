@@ -43,6 +43,9 @@ my_model = sdr_api.SdrInferenceAPI()
 #test the prediction method
 my_model.test_sdr_depressurization_predictions()
 
+event_text = "Lost cabin pressurization at flight level 30000, cabin altitude warning horn sounded at 10000 feet. Unabel to control cabin pressure with outflow valve closed"
+pred, probs = my_model.get_predictions([event_text])
+
 df = pd.read_csv('./src/sdr_classifier/data/SDR_Example.csv')
 records = df["Text"]
 #pass in a record list for prediction
