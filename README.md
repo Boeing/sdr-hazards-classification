@@ -1,4 +1,4 @@
-## Service Difficult Report (SDR) classifier package
+## Service Difficult Report (SDR) hazards classification package
 :rocket: This is the source code for the SDR Classifier package that classifies potential aviation safety hazards from textual data.  The work is a collaboration between FAA and Boeing data scientist teams
 
 **Version 0.1.0 out now!**
@@ -26,7 +26,7 @@ python setup.py bdist_wheel
 pip install ./distr/sdr_hazards_classification-0.1.0-py3-none-any.whl
 ```
 
-## Install sdr_classifier from Pypi with pip
+## Install sdr_hazards_classification from Pypi with pip
 ```
 pip install sdr_hazards_classification
 ```
