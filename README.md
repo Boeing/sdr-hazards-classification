@@ -38,7 +38,7 @@ pip install sdr_hazards_classification
 from sdr_hazards_classification.sdr_api import SdrInferenceAPI, CORROSION_LIMIT, DEGRADED_CONTROLLABILITY
 import pandas as pd
 
-depressurization_model = sdr_api.SdrInferenceAPI()
+depressurization_model = SdrInferenceAPI()
 
 #test the prediction method
 depressurization_model.test_sdr_depressurization_predictions()
