@@ -30,6 +30,8 @@ pip install ./distr/sdr_hazards_classification-0.1.0-py3-none-any.whl
 ```
 pip install sdr_hazards_classification
 ```
+## Contributing
+🛩️ Please follow the [contribution guideline](https://github.com/Boeing/sdr-hazards-classification/blob/main/CONTRIBUTING.md)
 
 ## Example
 :airplane: Follow the code snippet below to test and call the prediction method from the Depressurization model
@@ -62,5 +64,4 @@ print(df.head(2))
 
 print("Done")
 ```
-## Contributing
-🛩️ Please follow the [contribution guideline](https://github.com/Boeing/sdr-hazards-classification/blob/main/CONTRIBUTING.md)
+
