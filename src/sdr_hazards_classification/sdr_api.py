@@ -10,7 +10,7 @@ import os
 
 import numpy as np
 
-from .prep_utils import PreprocessingUtils, DEPRESSURIZATION, DEGRADED_CONTROLLABILITY, CORROSION_LIMIT
+from .prep_utils import PreprocessingUtils, DEPRESSURIZATION, DEGRADED_CONTROLLABILITY, CORROSION_LIMIT, FIRE, PDA, RTO
 from .vectorizers import Vectorizers
 import pandas as pd
 
@@ -27,6 +27,15 @@ class SdrInferenceAPI:
         elif event_type in DEPRESSURIZATION:
             model_type = f"sdr-{DEPRESSURIZATION}.model"
             model_config = f"sdr-{DEPRESSURIZATION}.config"
+        elif event_type in FIRE:
+            model_type = f"sdr-{FIRE}.model"
+            model_config = f"sdr-{FIRE}.config"
+        elif event_type in RTO:
+            model_type = f"sdr-{RTO}.model"
+            model_config = f"sdr-{RTO}.config"
+        elif event_type in PDA:
+            model_type = f"sdr-{PDA}.model"
+            model_config = f"sdr-{PDA}.config"
         else: assert "Event type not supported!"
 
         this_dir, this_filename = os.path.split(__file__)  # Get path of data.pkl
@@ -121,8 +130,11 @@ class SdrInferenceAPI:
 if __name__ == "__main__":
 
    #Load the trained model
-   model_api = SdrInferenceAPI(event_type='degraded-controllability')
-   model_api.test_sdr_degraded_controllability()
+   model_api = SdrInferenceAPI(event_type=CORROSION_LIMIT)
+   # model_api.test_sdr_degraded_controllability()
    model_api.test_sdr_corrosion_limit()
-   model_api.test_sdr_depressurization_predictions()
+   # model_api.test_sdr_depressurization_predictions()
 
+   fire_model = SdrInferenceAPI(event_type=PDA)
+   text = """strong odor of smoke in the flight deck. troubleshooting showed main deck cargo pdu 9r motor burned, tripping the circuit-breaker. and 10r overheated. both pdu ' s removed and cover plate installed"""
+   print(fire_model.get_predictions([text]))

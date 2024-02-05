@@ -28,6 +28,18 @@ class TestSdrModel():
     def load_corrosion_model(self, event_type="corrosion-limit"):
         yield SdrInferenceAPI(event_type)
 
+    @pytest.fixture
+    def load_fire_model(self, event_type="fire"):
+        yield SdrInferenceAPI(event_type)
+
+    @pytest.fixture
+    def load_pda_model(self, event_type="pda"):
+        yield SdrInferenceAPI(event_type)
+
+    @pytest.fixture
+    def load_rto_model(self, event_type="rto"):
+        yield SdrInferenceAPI(event_type)
+
     def test_depressurization_prediction_No(self, load_depressurization_model):
 
         expect_result = np.array(["No", "No"])
@@ -93,6 +105,51 @@ class TestSdrModel():
                   followed by autopilot disconnect and aural warning on two attempts. replaced autopilot aileron switch iaw amm 22-11-12, operation check good."""]
 
         pred, probs = load_controll_model.get_predictions(record)
+
+        assert_array_equal(pred, expect_result)
+        assert np.all(np.array(probs) > 0.9)
+
+    def test_fire(self, load_fire_model):
+
+        expect_result = np.array(["No", "Yes", "No", "Yes"])
+
+        record = ["""RETURNED TO DEPARTURE DUE TO THE LEFT ENGINE OIL QUANTITY WAS DECREASING. REPLACED THE ENGINE. 
+            Nature of Condition:  WARNING INDICATION, FLUID LOSS Precautionary Procedure:  UNSCHED LANDING Part Name: OIL SYSTEM Part Condition: LEAKING""",
+                  """burning electrical odor noticed in cabin from row 28 to back of aircraft. no signs of smoke noticed. odor approximately 1 hr out from landing. ran nr 1 and 2 engines independently with packs running. no smoke or any burning odor. checked reading lights iaw mcc for shorting and arcing. no signs of shorting and arcing. checked ovens and coffeemakers, no evidence of burning or arcing noted. nature of condition : smoke fumes odors sparks precautionary procedure : other part name : unknown part condition : odor.""",
+                  """CABIN ALTITUDE EICAS WARNING AT FL380. COMPLIED WITH QRH,  DESCENDED TO FINAL ALTITUDE FL250. RECOVERED CABIN PRESSURE IN AUTO 2 AT CABIN ALTITUDE 7500.  NORMAL DESCENT AND PRESSURE UNTIL LFPG.   REPLACED THE NR 1 CPC IAW MM 21-31-02-4, TESTED OK.  COMPLYED WITH CABIN PRESSURE DECAY CHECK IAW MM 05-51-24-2, TEST PASSED. Nature of Condition:  
+                WARNING INDICATION Precautionary Procedure:  O2 MASK DEPLOYED Part Name: CONTROLLER Part Condition: MALFUNCTIONED""",
+                  """on climbout the cockpit filled with smoke. the aircraft declared an emergency and returned to the airport. the smoke was observed coming from first officer ' s side. after aircraft returned to gate, mechanic found p6-12 circuit-breaker with evidence of being overheated and terminal connector burned. nature of condition : smoke fumes odors sparks precautionary procedure : unsched landing part name : circuit-breaker part condition : failed"""
+                  ]
+
+        pred, probs = load_fire_model.get_predictions(record)
+
+        assert_array_equal(pred, expect_result)
+        assert np.all(np.array(probs) > 0.9)
+
+    def test_pda(self, load_pda_model):
+        expect_result = np.array(["No", "Yes", "No", "Yes"])
+
+        record = ["""CABIN ALTITUDE EICAS WARNING AT FL380. COMPLIED WITH QRH,  DESCENDED TO FINAL ALTITUDE FL250. RECOVERED CABIN PRESSURE IN AUTO 2 AT CABIN ALTITUDE 7500.  NORMAL DESCENT AND PRESSURE UNTIL LFPG.   REPLACED THE NR 1 CPC IAW MM 21-31-02-4, TESTED OK.  COMPLYED WITH CABIN PRESSURE DECAY CHECK IAW MM 05-51-24-2, TEST PASSED. Nature of Condition:  
+        WARNING INDICATION Precautionary Procedure:  O2 MASK DEPLOYED Part Name: CONTROLLER Part Condition: MALFUNCTIONED""",
+        """right engine pylon aft outboard side panel assembly is missing panel number 446al. the panel possibly departed during op eration of the aircraft. the airplane was removed from service ( grounded ) and a serviceable panel 446al was installed. the cause of the missing panel is unknown.""",
+                  """aircraft was not grounded : during climb, autopilot engaged for approximately one second then began to roll left, 
+                  followed by autopilot disconnect and aural warning on two attempts. replaced autopilot aileron switch iaw amm 22-11-12, operation check good.""",
+                  """( log 5515918 parts departing airplane ) during pre-flight discovered large panel missing forward of right main wheel well. maintenance reinstalled body panel 192br per amm 53-51."""]
+
+        pred, probs = load_pda_model.get_predictions(record)
+
+        assert_array_equal(pred, expect_result)
+        assert np.all(np.array(probs) > 0.9)
+
+    def test_rto(self, load_rto_model):
+        expect_result = np.array(["No", "Yes", "No", "Yes"])
+
+        record = ["""forward cargo bay, bs 478 - 500, stringer 26l found cracked. removed the damaged stringer section and fabricated a repair iaw srm 53-00-03, fig 201, repair 2. installed iaw srm 51-40-02. nature of condition : other precautionary procedure : none part name : stringer part condition : cracked""",
+        """no airspeed on captains indicator, aborted takeoff and returned to blocks. inspected pitot tube and removed debris, op ' s and leak check good iaw amm 34-11-00. nature of condition : other precautionary procedure : aborted takeoff part name : pitot tube part condition : obstructed""",
+                  """during inspection, found a crack on the floor support between bs 277 and 294.5, rbl 1. maintenance replaced the floor support iaw srm 51-40-02.""",
+                  """during takeoff roll, the left thrust reverser warning light illuminated. aborted takeoff at approximately 40 knots. removed and replaced the engine accessory unit iaw amm 75-34-06. accomplished built in test equipment check iaw fim 78-31-00. system checked normal. nature of condition : warning indication precautionary procedure : aborted takeoff part name : accessory unit part condition : faulty"""]
+
+        pred, probs = load_rto_model.get_predictions(record)
 
         assert_array_equal(pred, expect_result)
         assert np.all(np.array(probs) > 0.9)
