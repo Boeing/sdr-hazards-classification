@@ -15,10 +15,10 @@ import logging
 from os import path
 import pickle
 import traceback as tb
-# Default column name  in DataFrame
+from sklearn.model_selection import cross_val_score
 from sklearn.svm import SVC
 
-from prep_utils import PreprocessingUtils, DEPRESSURIZATION, DEGRADED_CONTROLLABILITY, CORROSION_LIMIT
+from prep_utils import PreprocessingUtils, DEPRESSURIZATION, DEGRADED_CONTROLLABILITY, CORROSION_LIMIT, FIRE, RTO, PDA
 from vectorizers import Vectorizers
 
 prep_util = PreprocessingUtils()
@@ -106,30 +106,34 @@ class TextClassifier:
         X_train = Vectorizers.transform_with_vectorizers(train_data, vectorizers)
         model_config["vectorizers"] = vectorizers
 
-        model = None
+        sklearn_model = None
         if model_config["model_name"] == "lg":
-            model = LogisticRegression(solver='liblinear', C=1e2, max_iter=200)
+            sklearn_model = LogisticRegression(solver='liblinear', C=1e2, max_iter=200)
         elif model_config["model_name"] == "svm":
-            model = SVC(kernel='linear', C=1.0)
+            sklearn_model = SVC(kernel='linear', C=1.0)
         elif model_config["model_name"] == "xgb":
             from xgboost import XGBClassifier
-            model = XGBClassifier(n_estimators=500, max_depth=5, reg_alpha=.1)
+            sklearn_model = XGBClassifier(n_estimators=1000, max_depth=10, reg_alpha=.1)
         else:
             model_name = model_config["model_name"]
             raise ValueError(f"Model '{model_name}' not supported")
 
         # fit model
-        model.fit(X_train, train_labels)
+        print(f"Let's do CV for {type(sklearn_model).__name__}")
+        scores = cross_val_score(sklearn_model, X_train, train_labels, scoring= 'accuracy', cv=5)
+        print("%0.2f accuracy with a standard deviation of %0.2f" % (scores.mean(), scores.std()))
+
+        sklearn_model.fit(X_train, train_labels)
 
         if evaluate_model:
             # target_names = [criteria, 'Non-'+criteria]
-            target_name = le.inverse_transform(model.classes_)
-            predictions = TextClassifier.predict_sdr_labels(model, model_config, test_data)
+            target_name = le.inverse_transform(sklearn_model.classes_)
+            predictions = TextClassifier.predict_sdr_labels(sklearn_model, model_config, test_data)
             print(classification_report(test_labels, predictions[0], target_names=target_name))
             logging.info(msg=f'Performance:\n {classification_report(test_labels, predictions[0], target_names=target_name)}')
-            return model, model_config, test_data, test_labels
+            return sklearn_model, model_config, test_data, test_labels
 
-        return model, model_config
+        return sklearn_model, model_config
 
     @staticmethod
     def export_model(model, model_config, model_name, out_folder):
@@ -233,18 +237,33 @@ if __name__ == "__main__":
 
     if args.event_type in DEPRESSURIZATION:
         training_args = {'event_type': DEPRESSURIZATION,
-                    'model_type': 'lg',
+                    'model_type': args.model_type,
                    'target_name': ["depressurization", "non-depressurization"],
                    'training_path': "./data/Depressurization.csv"}
+    elif args.event_type in FIRE:
+        training_args = {'event_type': FIRE,
+                    'model_type': args.model_type,
+                   'target_name': ["fire", "non-fire"],
+                   'training_path': "./data/Fire.csv"}
+    elif args.event_type in PDA:
+        training_args = {'event_type': PDA,
+                    'model_type': args.model_type,
+                   'target_name': ["pda", "non-pda"],
+                   'training_path': "./data/Parts_Departing_Aircraft.csv"}
+    elif args.event_type in RTO:
+        training_args = {'event_type': RTO,
+                    'model_type': args.model_type,
+                   'target_name': ["rto", "non-rto"],
+                   'training_path': "./data/Reject_To_Takeoff.csv"}
     elif args.event_type in DEGRADED_CONTROLLABILITY:
         training_args = {'event_type': DEGRADED_CONTROLLABILITY,
-                    'model_type': 'xgb',
+                    'model_type': args.model_type,
                    'target_name': ["degraded-controllability", "non-degraded"],
                    'training_path': "./data/Degraded_Controllability.csv"}
     elif args.event_type in CORROSION_LIMIT:
         training_args = {
             'event_type': CORROSION_LIMIT,
-            'model_type': 'lg',
+            'model_type': args.model_type,
             'target_name': ["beyond-limit", "no-corrosion", "no-limit", "within-limit", "within-beyond-limit"],
             'training_path': "./data/Corrosion_Limit.csv"}
     else:

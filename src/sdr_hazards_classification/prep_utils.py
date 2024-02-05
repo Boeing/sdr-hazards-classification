@@ -15,6 +15,9 @@ from logging.handlers import TimedRotatingFileHandler
 DEPRESSURIZATION = 'depressurization'
 DEGRADED_CONTROLLABILITY= 'degraded-controllability'
 CORROSION_LIMIT = 'corrosion-limit'
+FIRE = 'fire'
+PDA = 'pda'
+RTO = 'rto'
 
 LOG_FILE = os.getcwd() + "/logs"
 if not os.path.exists(LOG_FILE):
