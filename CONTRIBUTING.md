@@ -2,8 +2,11 @@
 We welcome contributions to sdr-hazards-classification! We want to make contributing to this project as easy and transparent as possible, whether it's:
 
 🐛 Reporting a bug
+
 :octocat: Discussing the current state of the code
+
 :pencil2: Submitting a fix
+
 :bookmark: Proposing new features
 
 ## We Develop with Github
