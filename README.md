@@ -1,5 +1,9 @@
 ## Service Difficult Report (SDR) hazards classification package
-:rocket: This is the source code for the SDR Classifier package that classifies potential aviation safety hazards from textual data.  The work is a collaboration between FAA and Boeing data scientist teams
+:rocket: This is the source code for the SDR Classifier package that classifies potential aviation safety hazards from textual data.  The work is a collaboration between FAA and Boeing data scientist teams, and these models aim to assist analysts in Continued Operational Safety (COS) processes.
+
+SDRs are submitted via the [service difficulty reporting system](https://sdrs.faa.gov/) operators or certified repair stations as a means to document and share information with the aviation community about failures, malfunctions, or defects of aeronautical products. The free-form text description field often contains valuable COS-related information, however it lacks predictable grammatical structure and is not in any way standardized. Additionally, it can contain typographical errors, part numbers, abbreviations, and references to specific sections of maintenance manuals or operating procedures, making it difficult to reliably extract this information with regular expressions or language models designed to take in clean, full sentences as input. 
+
+Each of these COS classification models was trained to pick up on all of the variation described above for a specific COS criterion. Subject matter experts (SMEs) annotated hundreds of SDR records for training and testing of each model, and those datasets are available here alongside the code to train, test, and invoke the models.
 
 **Version 0.1.1 out now!**
 [Check out the release notes here.](https://github.com/Boeing/sdr-hazards-classification/releases)
@@ -65,3 +69,11 @@ print(df.head(2))
 print("Done")
 ```
 
+## References
+[Open Access Data via the FAA's Service Difficulty Reporting System](https://sdrs.faa.gov/)
+
+[FAA Deployment Demo on YouTube](https://youtu.be/oLzlHuqCr2A?si=a746KnEk3KZQtfsR&t=1738)
+
+[SKYbrary Summary](https://skybrary.aero/articles/classifying-depressurization-events-service-difficulty-reports-machine-learning)
+
+[Full Academic Paper on IEEE Xplore](https://ieeexplore.ieee.org/document/10194079)
