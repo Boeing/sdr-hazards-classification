@@ -10,7 +10,8 @@ import os
 
 import numpy as np
 
-from .prep_utils import PreprocessingUtils, DEPRESSURIZATION, DEGRADED_CONTROLLABILITY, CORROSION_LIMIT, FIRE, PDA, RTO
+from .prep_utils import PreprocessingUtils, DEPRESSURIZATION, DEGRADED_CONTROLLABILITY, CORROSION_LIMIT, FIRE, \
+    PDA, RTO, ENGINE, FUEL, RUNWAY_EXCURSION, FLIGHT_CREW, EMERGENCY_EQUIPMENT, STRUCTURE, VIBRATION, GENERAL_EQUIPMENT
 from .vectorizers import Vectorizers
 import pandas as pd
 
@@ -36,6 +37,33 @@ class SdrInferenceAPI:
         elif event_type in PDA:
             model_type = f"sdr-{PDA}.model"
             model_config = f"sdr-{PDA}.config"
+        elif event_type in PDA:
+            model_type = f"sdr-{PDA}.model"
+            model_config = f"sdr-{PDA}.config"
+        elif event_type in ENGINE:
+            model_type = f"sdr-{ENGINE}.model"
+            model_config = f"sdr-{ENGINE}.config"
+        elif event_type in FUEL:
+            model_type = f"sdr-{FUEL}.model"
+            model_config = f"sdr-{FUEL}.config"
+        elif event_type in RUNWAY_EXCURSION:
+            model_type = f"sdr-{RUNWAY_EXCURSION}.model"
+            model_config = f"sdr-{RUNWAY_EXCURSION}.config"
+        elif event_type in FLIGHT_CREW:
+            model_type = f"sdr-{FLIGHT_CREW}.model"
+            model_config = f"sdr-{FLIGHT_CREW}.config"
+        elif event_type in EMERGENCY_EQUIPMENT:
+            model_type = f"sdr-{EMERGENCY_EQUIPMENT}.model"
+            model_config = f"sdr-{EMERGENCY_EQUIPMENT}.config"
+        elif event_type in STRUCTURE:
+            model_type = f"sdr-{STRUCTURE}.model"
+            model_config = f"sdr-{STRUCTURE}.config"
+        elif event_type in VIBRATION:
+            model_type = f"sdr-{VIBRATION}.model"
+            model_config = f"sdr-{VIBRATION}.config"
+        elif event_type in GENERAL_EQUIPMENT:
+            model_type = f"sdr-{GENERAL_EQUIPMENT}.model"
+            model_config = f"sdr-{GENERAL_EQUIPMENT}.config"
         else: assert "Event type not supported!"
 
         this_dir, this_filename = os.path.split(__file__)  # Get path of data.pkl
@@ -135,6 +163,22 @@ if __name__ == "__main__":
    model_api.test_sdr_corrosion_limit()
    # model_api.test_sdr_depressurization_predictions()
 
-   fire_model = SdrInferenceAPI(event_type=PDA)
+   fire_model = SdrInferenceAPI(event_type=FIRE)
    text = """strong odor of smoke in the flight deck. troubleshooting showed main deck cargo pdu 9r motor burned, tripping the circuit-breaker. and 10r overheated. both pdu ' s removed and cover plate installed"""
    print(fire_model.get_predictions([text]))
+
+
+   fuel_model = SdrInferenceAPI(event_type=FUEL)
+   text = """aircraft was grounded: after return to gate for pax disturbance, fuel was streaming out of right wing tank surge valve, 
+    right center boost pump was on and after turning off right center pump leak stopped. replaced nr 2 fueling shutoff valve , 
+    per amm 28-21-51 (aala202009109005).  replaced nr 2 fuel float vent valve, per amm 28-13-11 (aala202009169012).  
+    repla ced right float switch, per amm 28-21-71 (aala202009169013). 
+    accomplished a satisfactory operational check of all repla ced items, per amm 28-26-00-650-802 and amm 28-21-00-700-801."""
+   print(fuel_model.get_predictions([text]))
+
+
+   engine_model = SdrInferenceAPI(event_type=ENGINE)
+   text = """iffo & div - flight crew reported hearing loud rumbles from the left engine and then the engine flamed out. 
+    flight crew  diverted to stl.  maintenance checked left engine chip detector, no defects, boroscope inspection per amm 72-00 no dama ge. 
+    removed and replaced number nr 1 engine fuel pump, hmu and eec per amm 73-11 and 73-21.  engine operational check o k."""
+   print(engine_model.get_predictions([text]))

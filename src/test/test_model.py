@@ -39,6 +39,35 @@ class TestSdrModel():
     @pytest.fixture
     def load_rto_model(self, event_type="rto"):
         yield SdrInferenceAPI(event_type)
+    @pytest.fixture
+    def load_engine_model(self, event_type="engine"):
+        yield SdrInferenceAPI(event_type)
+    @pytest.fixture
+    def load_fuel_model(self, event_type="fuel"):
+        yield SdrInferenceAPI(event_type)
+
+    @pytest.fixture
+    def load_runway_model(self, event_type="runway-excursion"):
+        yield SdrInferenceAPI(event_type)
+    @pytest.fixture
+    def load_flight_model(self, event_type="flight-crew"):
+        yield SdrInferenceAPI(event_type)
+
+    @pytest.fixture
+    def load_emergency_model(self, event_type="emergency-equipment"):
+        yield SdrInferenceAPI(event_type)
+
+    @pytest.fixture
+    def load_structure_model(self, event_type="structure"):
+        yield SdrInferenceAPI(event_type)
+
+    @pytest.fixture
+    def load_vibration_model(self, event_type="vibration"):
+        yield SdrInferenceAPI(event_type)
+
+    @pytest.fixture
+    def load_equipment_model(self, event_type="general-equipment"):
+        yield SdrInferenceAPI(event_type)
 
     def test_depressurization_prediction_No(self, load_depressurization_model):
 
@@ -176,6 +205,120 @@ class TestSdrModel():
 
         assert_array_equal(pred, expect_result)
         assert np.all(np.array(probs) > 0.9)
+
+
+    def test_fuel(self, load_fuel_model):
+        expect_result = np.array(["No", "Yes", "No", "Yes"])
+
+        record = ["""forward cargo bay, bs 478 - 500, stringer 26l found cracked. removed the damaged stringer section and fabricated a repair iaw srm 53-00-03, fig 201, repair 2. installed iaw srm 51-40-02. nature of condition : other precautionary procedure : none part name : stringer part condition : cracked""",
+                """aircraft was grounded: after return to gate for pax disturbance, fuel was streaming out of right wing tank surge valve, 
+                        right center boost pump was on and after turning off right center pump leak stopped. replaced nr 2 fueling shutoff valve , 
+                        per amm 28-21-51 (aala202009109005). """,
+                  """during inspection, found a crack on the floor support between bs 277 and 294.5, rbl 1. maintenance replaced the floor support iaw srm 51-40-02.""",
+                  """possible fuel leak associated with the left tank and engine, left side dropped an extra 1000 lbs every 10 mins. after 30  mins of flt, were 3500 pounds short on fuel at tings intersection. engine fuel burns were normal and even. acft arrival  w/ no visual external leakage, from eng or wing tnks. checked def vlvs for proper config at refuel sta''s. perf fuel qty  bite check iaw amm28-41-00-5   no current flts or flt history"""]
+
+        pred, probs = load_fuel_model.get_predictions(record)
+
+        assert_array_equal(pred, expect_result)
+        assert np.all(np.array(probs) > 0.6)
+
+    def test_engine(self, load_engine_model):
+        expect_result = np.array(["No", "Yes", "No", "Yes"])
+
+        record = [
+            """forward cargo bay, bs 478 - 500, stringer 26l found cracked. removed the damaged stringer section and fabricated a repair iaw srm 53-00-03, fig 201, repair 2. installed iaw srm 51-40-02. nature of condition : other precautionary procedure : none part name : stringer part condition : cracked""",
+            """aircraft was grounded: climbing through 22,000 feet with engine anti ice on, number 1 engine lost thrust and exhibited e xcessive vibration. reduced thrust but could not achieve more than 40% without vibration so shut engine down. emergency  
+            was declared and aircraft was not overweight for landing. removed and replaced left engine per jobcard 08l40072003.""",
+            """during inspection, found a crack on the floor support between bs 277 and 294.5, rbl 1. maintenance replaced the floor support iaw srm 51-40-02.""",
+            """on takeoff roll had odor in cockpit. after liftoff  got left engine overheat message. then followed by  fire bell. ran q rh an landed. emergency declared. r&r''d lh high pressure shut off valve.  
+            r&r''d both left engine reverser monted ventil ation bellows.  replaced lh engine outboard thrust reverser."""]
+
+        pred, probs = load_engine_model.get_predictions(record)
+
+        assert_array_equal(pred, expect_result)
+        assert np.all(np.array(probs) > 0.6)
+
+
+    def test_emergency(self, load_emergency_model):
+        expect_result = np.array(["No", "Yes", "No", "Yes"])
+
+        record = [
+            """forward cargo bay, bs 478 - 500, stringer 26l found cracked. removed the damaged stringer section and fabricated a repair iaw srm 53-00-03, fig 201, repair 2. installed iaw srm 51-40-02. nature of condition : other precautionary procedure : none part name : stringer part condition : cracked""",
+            """aft service door emergency escape slide partial deployed when door was open. ; inspected aft service door slide. slide did not deploy it just fell out of the comparment. reinstall aft service door slide iaw mt 725-61-06. ok for service """,
+            """during inspection, found a crack on the floor support between bs 277 and 294.5, rbl 1. maintenance replaced the floor support iaw srm 51-40-02.""",
+            """after emergency evacuation, flight attendent reported the l2 door was difficult to open and deploy slide. reportedly the door handle jammed about 45-60 degrees and door would not open until forced to open in which the slide finally deployed. 
+            nature of condition : other precautionary procedure : other part name : handle part condition : binding"""]
+
+        pred, probs = load_emergency_model.get_predictions(record)
+
+        assert_array_equal(pred, expect_result)
+        assert np.all(np.array(probs) > 0.6)
+
+    def test_flight_crew(self, load_flight_model):
+        expect_result = np.array(["No", "Yes", "Yes", "No"])
+
+        record = [
+            """forward cargo bay, bs 478 - 500, stringer 26l found cracked. removed the damaged stringer section and fabricated a repair iaw srm 53-00-03, fig 201, repair 2. installed iaw srm 51-40-02. nature of condition : other precautionary procedure : none part name : stringer part condition : cracked""",
+            """ship 1606 - diversion - to yul - due to crew o2 down to 20psi. corrective action : serviced oxygen bottle, found pressure drop slightly after 8 hours, swapped captain ' s oxygen mask and deferred per mel 25-11-02d-atl replaced left observer ' s oxygen supply line and captain ' s oxygen mask. lp 6378074""",
+            """flight deck first officer seat, inboard forward seat track, forward end of vertical web cracked. right & right seat track iaw srm. nature of condition : other precautionary procedure : none part name : seat track part condition : cracked""",
+            """possible fuel leak associated with the left tank and engine, left side dropped an extra 1000 lbs every 10 mins. after 30  mins of flt, were 3500 pounds short on fuel at tings intersection. engine fuel burns were normal and even. acft arrival  w/ no visual external leakage, from eng or wing tnks. 
+            checked def vlvs for proper config at refuel sta''s. perf fuel qty  bite check iaw amm28-41-00-5   no current flts or flt history"""]
+
+        pred, probs = load_flight_model.get_predictions(record)
+
+        assert_array_equal(pred, expect_result)
+        assert np.all(np.array(probs) > 0.6)
+
+
+    def test_structure(self, load_structure_model):
+        expect_result = np.array(["Yes", "No", "No", "Yes"])
+
+        record = [
+            """forward cargo bay, bs 478 - 500, stringer 26l found cracked. removed the damaged stringer section and fabricated a repair iaw srm 53-00-03, fig 201, repair 2. installed iaw srm 51-40-02. nature of condition : other precautionary procedure : none part name : stringer part condition : cracked""",
+            """aircraft was grounded: climbing through 22,000 feet with engine anti ice on, number 1 engine lost thrust and exhibited e xcessive vibration. reduced thrust but could not achieve more than 40% without vibration so shut engine down. emergency  
+            was declared and aircraft was not overweight for landing. removed and replaced left engine per jobcard 08l40072003.""",
+            """during inspection, found a crack on the floor support between bs 277 and 294.5, rbl 1. maintenance replaced the floor support iaw srm 51-40-02.""",
+            """corrosion level : 2 seat track right cabin seat track at rbl 88 sta 1197-1208 found with corrosion out of limits repaired per srm 53-00-52 nature of condition : 
+            other precautionary procedure : none part name : seat track part condition : corroded"""]
+
+        pred, probs = load_structure_model.get_predictions(record)
+
+        assert_array_equal(pred, expect_result)
+        assert np.all(np.array(probs) > 0.6)
+
+    def test_vibration(self, load_vibration_model):
+        expect_result = np.array(["No", "Yes", "No", "Yes"])
+
+        record = [
+            """forward cargo bay, bs 478 - 500, stringer 26l found cracked. removed the damaged stringer section and fabricated a repair iaw srm 53-00-03, fig 201, repair 2. installed iaw srm 51-40-02. nature of condition : other precautionary procedure : none part name : stringer part condition : cracked""",
+            """aircraft was grounded: climbing through 22,000 feet with engine anti ice on, number 1 engine lost thrust and exhibited e xcessive vibration. reduced thrust but could not achieve more than 40% without vibration so shut engine down. emergency  
+            was declared and aircraft was not overweight for landing. removed and replaced left engine per jobcard 08l40072003.""",
+            """during inspection, found a crack on the floor support between bs 277 and 294.5, rbl 1. maintenance replaced the floor support iaw srm 51-40-02.""",
+            """air turn back declared emergency, after vi, takeoff decision speed, high speed violent shake prior to rotation. main landing gear tire blown. right & right nr 1 main landing gear wheel assembly per amm. nature of condition :
+             vibration buffet precautionary procedure : unsched landing part name : tire part condition : blown."""]
+
+        pred, probs = load_vibration_model.get_predictions(record)
+
+        assert_array_equal(pred, expect_result)
+        assert np.all(np.array(probs) > 0.6)
+
+
+    def test_equipment(self, load_equipment_model):
+        expect_result = np.array(["No", "Yes", "No", "Yes"])
+
+        record = [
+            """forward cargo bay, bs 478 - 500, stringer 26l found cracked. removed the damaged stringer section and fabricated a repair iaw srm 53-00-03, fig 201, repair 2. installed iaw srm 51-40-02. nature of condition : other precautionary procedure : none part name : stringer part condition : cracked""",
+            """diversion declared emergency at fl400 indicated airspeed disagree flag on primary flight display + - 5-6 knots between captain first officer standby airspeed. 
+            during descent captain s airspeed gradually decreased to 45kt, first officers standby indicated 250kt. captains altitude 300-500ft high. elect ronic engine control system shifted to altitude mode. 
+            captain airspeed & altitude remained erroneous until 5000-8 000ft when they seemed normal. found faulty left air data inertial reference unit per amm.""",
+            """during inspection, found a crack on the floor support between bs 277 and 294.5, rbl 1. maintenance replaced the floor support iaw srm 51-40-02.""",
+            """aircraft was grounded : left altimeter and right airspeed indication unreliable, flight declared emergency and diverted to lit. replaced right pitot probe ( aala202104279011 )
+             iaw amm 34-11-01, window pitot heat module ( aala202104279012 ) iaw amm 30-41 - 41, and right pitot air data module, leak and ops checks good."""]
+
+        pred, probs = load_equipment_model.get_predictions(record)
+
+        assert_array_equal(pred, expect_result)
+        assert np.all(np.array(probs) > 0.6)
 
 if __name__ == "__main__":
 

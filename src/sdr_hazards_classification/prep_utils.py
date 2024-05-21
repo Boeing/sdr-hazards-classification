@@ -18,6 +18,14 @@ CORROSION_LIMIT = 'corrosion-limit'
 FIRE = 'fire'
 PDA = 'pda'
 RTO = 'rto'
+ENGINE = 'engine'
+FUEL = 'fuel'
+RUNWAY_EXCURSION = 'runway-excursion'
+FLIGHT_CREW = 'flight-crew'
+EMERGENCY_EQUIPMENT = 'emergency-equipment'
+STRUCTURE = 'structure'
+VIBRATION = 'vibration'
+GENERAL_EQUIPMENT = 'general-equipment'
 
 LOG_FILE = os.getcwd() + "/logs"
 if not os.path.exists(LOG_FILE):
