@@ -18,7 +18,8 @@ import traceback as tb
 from sklearn.model_selection import cross_val_score
 from sklearn.svm import SVC
 
-from prep_utils import PreprocessingUtils, DEPRESSURIZATION, DEGRADED_CONTROLLABILITY, CORROSION_LIMIT, FIRE, RTO, PDA
+from prep_utils import PreprocessingUtils, DEPRESSURIZATION, DEGRADED_CONTROLLABILITY, CORROSION_LIMIT, FIRE, RTO, PDA, \
+    ENGINE, FUEL, RUNWAY_EXCURSION, FLIGHT_CREW, EMERGENCY_EQUIPMENT, STRUCTURE, VIBRATION, GENERAL_EQUIPMENT
 from vectorizers import Vectorizers
 
 prep_util = PreprocessingUtils()
@@ -184,15 +185,7 @@ class TextClassifier:
             # label_dict = {"Yes": 1, "No": 0}
             label_dict = kwargs['target_name']
 
-            # Training example prior to SME feedback
-            # work_dir = r".\experiments\depressurization\data_sets"
-            # df_train_prep = pd.read_csv(path.join(work_dir, "train-0.7_prep.csv"))
-            # df_test_prep = pd.read_csv(path.join(work_dir, "test-0.3_prep.csv"))
-            # df_all = pd.concat([df_train_prep, df_test_prep])
-            # text_field = "Text_punct_prep"
-
             # Traininig examples after SME feedback
-            # df = pd.read_csv(r".\depressurization\SDR_Depressurization_Gold_label_with_SME_Feedback.csv")
             df = pd.read_csv(kwargs['training_path'], encoding='latin')
             df_all = pd.DataFrame({text_field:df["Text"], label_field:df["Label"].str.strip()})
             combine_maybe_to_yes = True
@@ -201,12 +194,13 @@ class TextClassifier:
             logging.info(msg=f'Classes Distribution\n: {df_all[label_field].value_counts()}')
             if combine_maybe_to_yes:
                 df_all[label_field].loc[df_all[label_field] == 'Maybe'] = "Yes"
-                # df_maybe = df_all[df_all[label_field] == "Maybe"]
-                # df_pos = pd.concat([df_pos, df_maybe])
-                # df_pos[label_field] = "Yes"
             print("------------------")
             print(f"Training a model using all {criteria} records.")
             logging.info(msg=f"Training a model using all {criteria} records.")
+
+            if df_all.Label.value_counts().count() < 2:
+                df_non_hazards = pd.read_csv(kwargs['non_hazards_path'], encoding='latin')
+                df_all = pd.concat([df_all, df_non_hazards])
 
             model, model_config, _, _ = TextClassifier.get_classifier(criteria, df_all, text_field, label_field,
                                                                       label_dict, model_type=model_type)
@@ -238,27 +232,67 @@ if __name__ == "__main__":
     if args.event_type in DEPRESSURIZATION:
         training_args = {'event_type': DEPRESSURIZATION,
                     'model_type': args.model_type,
-                   'target_name': ["depressurization", "non-depressurization"],
+                   'target_name': [DEPRESSURIZATION, "non-" + DEPRESSURIZATION],
                    'training_path': "./data/Depressurization.csv"}
+    elif args.event_type in ENGINE:
+        training_args = {'event_type': ENGINE,
+                    'model_type': args.model_type,
+                   'target_name': [ENGINE, "non-" + ENGINE],
+                   'training_path': "./data/Engine.csv"}
+    elif args.event_type in STRUCTURE:
+        training_args = {'event_type': STRUCTURE,
+                    'model_type': args.model_type,
+                   'target_name': [STRUCTURE, "non-" + STRUCTURE],
+                   'training_path': "./data/Structure.csv"}
+    elif args.event_type in VIBRATION:
+        training_args = {'event_type': VIBRATION,
+                    'model_type': args.model_type,
+                   'target_name': [VIBRATION, "non-" + VIBRATION],
+                   'training_path': "./data/Abnormal_Vibration.csv"}
+    elif args.event_type in GENERAL_EQUIPMENT:
+        training_args = {'event_type': GENERAL_EQUIPMENT,
+                    'model_type': args.model_type,
+                   'target_name': [GENERAL_EQUIPMENT, "non-" + GENERAL_EQUIPMENT],
+                   'training_path': "./data/General_Equipment.csv"}
+    elif args.event_type in FUEL:
+        training_args = {'event_type': FUEL,
+                    'model_type': args.model_type,
+                   'target_name': [FUEL, "non-" + FUEL],
+                   'training_path': "./data/Fuel.csv"}
+    elif args.event_type in RUNWAY_EXCURSION:
+        training_args = {'event_type': RUNWAY_EXCURSION,
+                    'model_type': args.model_type,
+                   'target_name': [RUNWAY_EXCURSION, "non-" + RUNWAY_EXCURSION],
+                   'training_path': "./data/Runway_Excursion.csv"}
+    elif args.event_type in FLIGHT_CREW:
+        training_args = {'event_type': FLIGHT_CREW,
+                    'model_type': args.model_type,
+                   'target_name': [FLIGHT_CREW, "non-" + FLIGHT_CREW],
+                   'training_path': "./data/Flight_Crew.csv"}
+    elif args.event_type in EMERGENCY_EQUIPMENT:
+        training_args = {'event_type': EMERGENCY_EQUIPMENT,
+                    'model_type': args.model_type,
+                   'target_name': [EMERGENCY_EQUIPMENT, "non-" + EMERGENCY_EQUIPMENT],
+                   'training_path': "./data/Emergency_Equipment.csv"}
     elif args.event_type in FIRE:
         training_args = {'event_type': FIRE,
                     'model_type': args.model_type,
-                   'target_name': ["fire", "non-fire"],
+                   'target_name': [FIRE, "non-" + FIRE],
                    'training_path': "./data/Fire.csv"}
     elif args.event_type in PDA:
         training_args = {'event_type': PDA,
                     'model_type': args.model_type,
-                   'target_name': ["pda", "non-pda"],
+                   'target_name': [PDA, "non-" + PDA],
                    'training_path': "./data/Parts_Departing_Aircraft.csv"}
     elif args.event_type in RTO:
         training_args = {'event_type': RTO,
                     'model_type': args.model_type,
-                   'target_name': ["rto", "non-rto"],
+                   'target_name': [RTO, "non-" + RTO],
                    'training_path': "./data/Reject_To_Takeoff.csv"}
     elif args.event_type in DEGRADED_CONTROLLABILITY:
         training_args = {'event_type': DEGRADED_CONTROLLABILITY,
                     'model_type': args.model_type,
-                   'target_name': ["degraded-controllability", "non-degraded"],
+                   'target_name': [DEGRADED_CONTROLLABILITY, "non-" + DEGRADED_CONTROLLABILITY],
                    'training_path': "./data/Degraded_Controllability.csv"}
     elif args.event_type in CORROSION_LIMIT:
         training_args = {
@@ -273,7 +307,7 @@ if __name__ == "__main__":
                    'training_path': args.file_path}
 
     #### Model Config Path ########################################
-
+    training_args['non_hazards_path'] = './data/Non_Hazards.csv'
     logging.info(msg=f'Start training for {training_args}')
 
     model, model_config = TextClassifier.release_model(**training_args)
